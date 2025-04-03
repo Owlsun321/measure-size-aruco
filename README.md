@@ -2,7 +2,7 @@
 
 ## How It works
 
-![result](images\result.png)
+![result](images/result.png)
 
 ## Overview
 
