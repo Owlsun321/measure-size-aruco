@@ -1,0 +1,68 @@
+import cv2
+from objectDetector import objDetector
+import numpy as np
+import argparse
+
+# Argument parsing for side length input
+parser = argparse.ArgumentParser(description="Measure")
+parser.add_argument("--side", type=float, required=True, help="Side length of the aruco marker in cm")
+args = parser.parse_args()
+
+# call object
+detector = objDetector()
+
+# import image data and read it
+image_path = 'images/image7.jpg'
+img = cv2.imread(image_path)
+
+# Load aruco detector
+parameters = cv2.aruco.DetectorParameters_create()
+aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_100)
+
+# Get Aruco marker
+corners, _, _ = cv2.aruco.detectMarkers(img, aruco_dict, parameters=parameters)
+
+# Draw polygon around the marker
+int_corners = np.int0(corners)
+cv2.polylines(img, int_corners, True, (0, 0, 255), 5)
+
+if corners:
+    # Aruco Perimeter
+    aruco_perimeter = cv2.arcLength(corners[0], True)
+
+    # Pixel to cm ratio (using multiplication)
+    pixel_cm_ratio = (4 * args.side) / aruco_perimeter
+else:
+    pixel_cm_ratio = 29.526773834228514
+
+# Load Object detector module
+contours = detector.detect_object(img)
+
+for cnt in contours:
+    # Draw polygon
+    # cv2.polylines(img, [cnt], True, (0, 0, 255), 2)
+
+    # draw rect
+    rect = cv2.minAreaRect(cnt)
+    (x, y), (w, h), angle = rect
+
+    box = np.int0(cv2.boxPoints(rect))
+
+    # display the center point in an object
+    cv2.circle(img, (int(x), int(y)), 5, (255, 0, 0), -1)
+
+    # draw a rectangle box in objects
+    cv2.polylines(img, [box], True, (0, 255, 0), 2)
+
+    # Get Width and Height of the Objects by applying the Ratio pixel to cm
+    object_width = w * pixel_cm_ratio
+    object_height = h * pixel_cm_ratio
+
+    # display the object size
+    cv2.putText(img, f'Width: {round(object_width, 1)} cm', (int(x), int(y) - 50), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1)
+    cv2.putText(img, f'Height: {round(object_height, 1)} cm', (int(x), int(y) - 30), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1)
+
+cv2.imshow("Measure Object Size", img)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
