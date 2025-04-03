@@ -2,7 +2,7 @@
 
 ## How It works
 
-![result](C:\Users\1256276177\Desktop\result.png)
+![result](images\result.png)
 
 ## Overview
 
