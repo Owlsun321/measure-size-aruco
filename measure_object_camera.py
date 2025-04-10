@@ -1,5 +1,5 @@
 import cv2
-from objectDetector import objDetector
+from utils import objDetector
 import numpy as np
 import argparse
 
